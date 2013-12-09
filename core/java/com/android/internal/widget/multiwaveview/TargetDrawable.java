@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2011 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.internal.widget.multiwaveview;
 
@@ -28,9 +28,11 @@ public class TargetDrawable {
     private static final boolean DEBUG = false;
 
     public static final int[] STATE_ACTIVE =
-            { android.R.attr.state_enabled, android.R.attr.state_active };
+            { android.R.attr.state_enabled, android.R.attr.state_active,
+                -android.R.attr.state_focused };
     public static final int[] STATE_INACTIVE =
-            { android.R.attr.state_enabled, -android.R.attr.state_active };
+            { android.R.attr.state_enabled, -android.R.attr.state_active,
+                -android.R.attr.state_focused };
     public static final int[] STATE_FOCUSED =
             { android.R.attr.state_enabled, -android.R.attr.state_active,
                 android.R.attr.state_focused };
@@ -55,6 +57,14 @@ public class TargetDrawable {
         // Note we explicitly don't set mResourceId to resId since we allow the drawable to be
         // swapped at runtime and want to re-use the existing resource id for identification.
         Drawable drawable = resId == 0 ? null : res.getDrawable(resId);
+        // Mutate the drawable so we can animate shared drawable properties.
+        mDrawable = drawable != null ? drawable.mutate() : null;
+        resizeDrawables();
+        setState(STATE_INACTIVE);
+    }
+
+    public TargetDrawable(Resources res, Drawable drawable) {
+        mResourceId = 0;
         // Mutate the drawable so we can animate shared drawable properties.
         mDrawable = drawable != null ? drawable.mutate() : null;
         resizeDrawables();
@@ -86,10 +96,10 @@ public class TargetDrawable {
     }
 
     /**
-     * Returns true if the drawable is a StateListDrawable and is in the focused state.
-     *
-     * @return
-     */
+* Returns true if the drawable is a StateListDrawable and is in the focused state.
+*
+* @return
+*/
     public boolean isActive() {
         if (mDrawable instanceof StateListDrawable) {
             StateListDrawable d = (StateListDrawable) mDrawable;
@@ -104,20 +114,20 @@ public class TargetDrawable {
     }
 
     /**
-     * Returns true if this target is enabled. Typically an enabled target contains a valid
-     * drawable in a valid state. Currently all targets with valid drawables are valid.
-     *
-     * @return
-     */
+* Returns true if this target is enabled. Typically an enabled target contains a valid
+* drawable in a valid state. Currently all targets with valid drawables are valid.
+*
+* @return
+*/
     public boolean isEnabled() {
         return mDrawable != null && mEnabled;
     }
 
     /**
-     * Makes drawables in a StateListDrawable all the same dimensions.
-     * If not a StateListDrawable, then justs sets the bounds to the intrinsic size of the
-     * drawable.
-     */
+* Makes drawables in a StateListDrawable all the same dimensions.
+* If not a StateListDrawable, then justs sets the bounds to the intrinsic size of the
+* drawable.
+*/
     private void resizeDrawables() {
         if (mDrawable instanceof StateListDrawable) {
             StateListDrawable d = (StateListDrawable) mDrawable;
@@ -221,7 +231,7 @@ public class TargetDrawable {
     }
 
     public void setEnabled(boolean enabled) {
-        mEnabled  = enabled;
+        mEnabled = enabled;
     }
 
     public int getResourceId() {
