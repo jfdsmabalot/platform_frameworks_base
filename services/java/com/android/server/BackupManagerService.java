@@ -1401,10 +1401,7 @@ class BackupManagerService extends IBackupManager.Stub {
                 }
             }
         } catch (RemoteException e) {
-            // the transport threw when asked its file naming prefs; declare it invalid
-            Slog.e(TAG, "Unable to register transport as " + name);
-            mTransportNames.remove(component);
-            mTransports.remove(name);
+            // can't happen, the transport is local
         }
     }
 
