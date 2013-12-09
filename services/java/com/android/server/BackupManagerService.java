@@ -888,6 +888,7 @@ class BackupManagerService extends IBackupManager.Stub {
                 "com.google.android.backup.BackupTransportService");
         try {
             // If there's something out there that is supposed to be the Google
+
             // backup transport, make sure it's legitimately part of the OS build
             // and not an app lying about its package name.
             ApplicationInfo info = mPackageManager.getApplicationInfo(
@@ -903,30 +904,6 @@ class BackupManagerService extends IBackupManager.Stub {
         } catch (PackageManager.NameNotFoundException nnf) {
             // No such package?  No binding.
             if (DEBUG) Slog.v(TAG, "Google transport not present");
-            }
-            for (int i = 0; i < hosts.size(); i++) {
-                try {
-                    ServiceInfo info = hosts.get(i).serviceInfo;
-                    PackageInfo packInfo = mPackageManager.getPackageInfo(info.packageName, 0);
-                    if ((packInfo.applicationInfo.flags & ApplicationInfo.FLAG_PRIVILEGED) != 0) {
-                        ComponentName svcName = new ComponentName(info.packageName, info.name);
-                        if (DEBUG) {
-                            Slog.i(TAG, "Binding to transport host " + svcName);
-                        }
-                        Intent intent = new Intent(transportServiceIntent);
-                        intent.setComponent(svcName);
-                        TransportConnection connection = new TransportConnection();
-                        mTransportConnections.add(connection);
-                        context.bindServiceAsUser(intent,
-                                connection, Context.BIND_AUTO_CREATE,
-                                UserHandle.OWNER);
-                    } else {
-                        Slog.w(TAG, "Transport package not privileged: " + info.packageName);
-                    }
-                } catch (Exception e) {
-                    Slog.e(TAG, "Problem resolving transport service: " + e.getMessage());
-                }
-            }
         }
 
         // Now that we know about valid backup participants, parse any
@@ -1493,7 +1470,6 @@ class BackupManagerService extends IBackupManager.Stub {
             if (DEBUG) Slog.v(TAG, "Connected to Google transport");
             mGoogleTransport = IBackupTransport.Stub.asInterface(service);
             registerTransport(name.flattenToShortString(), mGoogleTransport);
-            }
         }
 
         public void onServiceDisconnected(ComponentName name) {
